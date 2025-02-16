@@ -4,7 +4,7 @@ namespace ToDoWorksListAPI.Service
 {
     public class ToDoList : IToDoList
     {
-        public List<ToDoItem> ToDoItemsList { get; set; }
+        private List<ToDoItem> ToDoItemsList;
         public ToDoList()
         {
             ToDoItemsList = [

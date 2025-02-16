@@ -4,7 +4,6 @@ namespace ToDoWorksListAPI.Service
 {
     public interface IToDoList
     {
-        List<ToDoItem> ToDoItemsList { get; set; }
         public List<ToDoItem> GetToDoList();
         public ToDoItem? GetToDoItem(int id);
         public void UpdToDoItem(int id, ToDoItem toDoItem);
