@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ToDoWorksListAPI.Models;
 using ToDoWorksListAPI.Service;
 
@@ -6,8 +9,13 @@ using ToDoWorksListAPI.Service;
 
 namespace ToDoWorksListAPI.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Работа со список задач
+    /// </summary>
+    [ApiVersion("1.0")]
+    [Route("api/{version:apiVersion}/[controller]")]
     [ApiController]
+    [Authorize]
     public class ToDoController : ControllerBase
     {
         private readonly ILogger<ToDoController> _logger;
@@ -21,28 +29,48 @@ namespace ToDoWorksListAPI.Controllers
             _logService = logService;
         }
 
-        // GET: api/<ToDoController>
+        /// <summary>
+        /// Получить весь список задач
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IEnumerable<ToDoItem> Get()
         {
-            return _toDoList.GetToDoList();
+            string email = string.Empty;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null) email = identity.FindFirst(ClaimTypes.Email).Value;
+            return _toDoList.GetToDoList(email);
         }
 
-        // GET api/<ToDoController>/5
+        /// <summary>
+        /// Получить задачу
+        /// </summary>
+        /// <param name="id">Номер задачи</param>
+        /// <returns>Объект ToDoItem</returns>
         [HttpGet("{id}")]
         public ToDoItem? Get(int id)
         {
             return _toDoList.GetToDoItem(id);
         }
 
-        // POST api/<ToDoController>
+        /// <summary>
+        /// Добавление новой задачи
+        /// </summary>
+        /// <param name="value">Навание новой задачи</param>
         [HttpPost]
         public void Post([FromBody] string value)
         {
-            _toDoList.AddItemToDoList(value);
+            string email = string.Empty;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null) email = identity.FindFirst(ClaimTypes.Email).Value;
+            _toDoList.AddItemToDoList(value, email);
         }
 
-        // PUT api/<ToDoController>/5
+        /// <summary>
+        /// Обновление задачи
+        /// </summary>
+        /// <param name="id">Id задачи</param>
+        /// <param name="toDoItem">Объект задачи ToDoItem</param>
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] ToDoItem toDoItem)
         {
@@ -54,13 +82,20 @@ namespace ToDoWorksListAPI.Controllers
         //    _toDoList.UpdToDoItem(toDoItem);
         //}
 
-        // DELETE api/<ToDoController>/5
+        /// <summary>
+        /// Удаление задачи
+        /// </summary>
+        /// <param name="id">Id задачи</param>
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
             _toDoList.DelItemToDoList(id);
         }
 
+        /// <summary>
+        /// Получение времени жизни зарегистрированного объекта
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("/GetLifetime")]
         public string GetLifetime()
         {
