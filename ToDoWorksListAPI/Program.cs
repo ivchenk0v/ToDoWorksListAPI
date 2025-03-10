@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -28,6 +29,18 @@ namespace ToDoWorksListAPI
                     options.InputFormatters.Add(new XmlSerializerInputFormatter(options));
                     options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
                 });
+
+            builder.Services.AddHostedService<SendingOverdueTaskBackgroundService>();
+
+            builder.Services.AddHangfire(x =>
+            {
+                x.UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+            builder.Services.AddHangfireServer();
+
+            builder.Services.AddScoped<IHangfireBackgroundJobs, HangfireBackgroundJobs>();
 
             builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -145,6 +158,8 @@ namespace ToDoWorksListAPI
             app.UseAuthorization();
 
             app.UseMiddleware<RequestLoggingMiddleware>();
+
+            app.UseHangfireDashboard();
 
             app.MapControllers();
 

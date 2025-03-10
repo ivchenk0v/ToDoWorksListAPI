@@ -21,5 +21,9 @@
         /// Признак завершенности задачи
         /// </summary>
         public bool IsDone { get; set; } = false;
+        /// <summary>
+        /// Признак завершенности задачи
+        /// </summary>
+        public required DateTime Deadline { get; set; }
     }
 }

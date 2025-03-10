@@ -81,6 +81,7 @@ namespace ToDoWorksListAPI.Controllers
         /// <param name="Name">Имя пользователя</param>
         /// <param name="Email">Почта</param>
         /// <param name="Password">Пароль</param>
+        /// <param name="Role"></param>
         /// <returns></returns>
         [HttpPost, Route("add_user")]
         [Authorize(Roles = "admin")]
